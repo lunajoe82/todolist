@@ -96,7 +96,7 @@ class _ToDoListState extends State<ToDoList> {
                       ),
                       IconButton(
                         icon: Icon(Icons.delete),
-                        onPressed: () => removeTask(index),
+                        onPressed: () => addTask,
                       ),
                     ],
                   ),
