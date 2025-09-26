@@ -11,6 +11,7 @@ class ToDoApp extends StatelessWidget {
       title: 'Lista de Tareas',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+          primarySwatch: Colors.green,
       ),
       home: ToDoList(),
     );
