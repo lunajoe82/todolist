@@ -10,7 +10,7 @@ class ToDoApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lista de Tareas',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
       ),
       home: ToDoList(),
     );
