@@ -25,8 +25,11 @@ class ToDoList extends StatefulWidget {
 class _ToDoListState extends State<ToDoList> {
   // Lista de tareas
   List<String> tasks = [];
-  // Controlador para el campo de texto
+  // Controlador para el campo de texto (nueva tarea)
   TextEditingController taskController = TextEditingController();
+  // Controlador para la búsqueda
+  TextEditingController searchController = TextEditingController();
+  String query = "";
 
   // Función para agregar una tarea
   void addTask() {
@@ -54,12 +57,34 @@ class _ToDoListState extends State<ToDoList> {
 
   @override
   Widget build(BuildContext context) {
+    // Filtrar tareas según búsqueda
+    List<String> filteredTasks = tasks
+        .where((task) => task.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de tareas'),
       ),
       body: Column(
         children: [
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: 'Buscar tarea...',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  query = value;
+                });
+              },
+            ),
+          ),
           // Campo de texto para agregar tareas
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -80,23 +105,25 @@ class _ToDoListState extends State<ToDoList> {
               ],
             ),
           ),
-          // Lista de tareas
+          // Lista de tareas filtrada
           Expanded(
             child: ListView.builder(
-              itemCount: tasks.length,
+              itemCount: filteredTasks.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(tasks[index]),
+                  title: Text(filteredTasks[index]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: Icon(Icons.check),
-                        onPressed: () => toggleTaskCompletion(index),
+                        onPressed: () => toggleTaskCompletion(
+                            tasks.indexOf(filteredTasks[index])),
                       ),
                       IconButton(
                         icon: Icon(Icons.delete),
-                        onPressed: () => addTask,
+                        onPressed: () => removeTask(
+                            tasks.indexOf(filteredTasks[index])),
                       ),
                     ],
                   ),
