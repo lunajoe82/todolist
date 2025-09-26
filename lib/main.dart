@@ -11,6 +11,7 @@ class ToDoApp extends StatelessWidget {
       title: 'Lista de Tareas',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+          primarySwatch: Colors.green,
       ),
       home: ToDoList(),
     );
@@ -25,15 +26,35 @@ class ToDoList extends StatefulWidget {
 class _ToDoListState extends State<ToDoList> {
   // Lista de tareas
   List<String> tasks = [];
-  // Controlador para el campo de texto
+  List<String> filteredTasks = [];
+  // Controladores
   TextEditingController taskController = TextEditingController();
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    filteredTasks = tasks;
+    searchController.addListener(_filterTasks);
+  }
+
+  // Función para filtrar tareas
+  void _filterTasks() {
+    setState(() {
+      String query = searchController.text.toLowerCase();
+      filteredTasks = tasks
+          .where((task) => task.toLowerCase().contains(query))
+          .toList();
+    });
+  }
 
   // Función para agregar una tarea
   void addTask() {
     if (taskController.text.isNotEmpty) {
       setState(() {
         tasks.add(taskController.text);
-        taskController.clear(); // Limpiar el campo de texto
+        taskController.clear();
+        _filterTasks(); // actualizar lista filtrada
       });
     }
   }
@@ -41,14 +62,17 @@ class _ToDoListState extends State<ToDoList> {
   // Función para eliminar una tarea
   void removeTask(int index) {
     setState(() {
-      tasks.removeAt(index);
+      tasks.remove(filteredTasks[index]);
+      _filterTasks();
     });
   }
 
   // Función para marcar una tarea como completada
   void toggleTaskCompletion(int index) {
     setState(() {
-      tasks[index] = tasks[index] + " ✅";
+      int realIndex = tasks.indexOf(filteredTasks[index]);
+      tasks[realIndex] = tasks[realIndex] + " ✅";
+      _filterTasks();
     });
   }
 
@@ -60,6 +84,17 @@ class _ToDoListState extends State<ToDoList> {
       ),
       body: Column(
         children: [
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: 'Buscar tarea...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
           // Campo de texto para agregar tareas
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -80,13 +115,13 @@ class _ToDoListState extends State<ToDoList> {
               ],
             ),
           ),
-          // Lista de tareas
+          // Lista de tareas filtradas
           Expanded(
             child: ListView.builder(
-              itemCount: tasks.length,
+              itemCount: filteredTasks.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(tasks[index]),
+                  title: Text(filteredTasks[index]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -96,7 +131,7 @@ class _ToDoListState extends State<ToDoList> {
                       ),
                       IconButton(
                         icon: Icon(Icons.delete),
-                        onPressed: () => addTask,
+                        onPressed: () => removeTask(index),
                       ),
                     ],
                   ),
